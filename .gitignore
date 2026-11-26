@@ -1,0 +1,8 @@
+build/
+.build/
+.DS_Store
+*.xcodeproj
+xcuserdata/
+BUILD.md
+README.md
+readme.md
