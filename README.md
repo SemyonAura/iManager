@@ -42,19 +42,6 @@ open build/iManager.app
 
 `build.sh` компилирует проект напрямую через `swiftc`, собирает universal binary (`x86_64` + `arm64`), копирует ресурсы, подписывает ad-hoc и создаёт `build/iManager.app`.
 
-### DMG
-
-```bash
-APP=build/iManager.app
-OUT=build/iManager.dmg
-STAGE=build/dmg-stage
-rm -rf "$STAGE" "$OUT"
-mkdir -p "$STAGE"
-cp -R "$APP" "$STAGE/"
-ln -s /Applications "$STAGE/Applications"
-hdiutil create -volname "iManager" -srcfolder "$STAGE" -ov -format UDZO "$OUT"
-```
-
 ### Структура проекта
 
 ```text
@@ -117,18 +104,6 @@ open build/iManager.app
 
 `build.sh` compiles the app directly with `swiftc`, produces a universal binary (`x86_64` + `arm64`), copies resources, ad-hoc signs the bundle, and creates `build/iManager.app`.
 
-### DMG
-
-```bash
-APP=build/iManager.app
-OUT=build/iManager.dmg
-STAGE=build/dmg-stage
-rm -rf "$STAGE" "$OUT"
-mkdir -p "$STAGE"
-cp -R "$APP" "$STAGE/"
-ln -s /Applications "$STAGE/Applications"
-hdiutil create -volname "iManager" -srcfolder "$STAGE" -ov -format UDZO "$OUT"
-```
 
 ### Project Structure
 
@@ -156,6 +131,3 @@ iManager provides the required device environment for ipatool and clears the loc
 - App install/download behavior depends on device state, IPA signing, and Apple rules.
 - The project uses Apple private frameworks (`MobileDevice.framework`) and may need updates for future macOS/iOS releases.
 
-### License
-
-Add a `LICENSE` file if you want to publish this project under a specific license.
