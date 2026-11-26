@@ -1,2 +1,2 @@
 # iManager
-App installer for s
+App installer for iOS
