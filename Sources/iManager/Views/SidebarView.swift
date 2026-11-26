@@ -12,19 +12,31 @@ struct SidebarView: View {
                     EmptyDeviceRow()
                 } else {
                     ForEach(manager.devices) { device in
-                        DeviceRow(device: device)
-                            .tag(device.id)
+                        NavigationLink(
+                            destination: DeviceDetailView(device: device).id(device.id),
+                            tag: device.id,
+                            selection: $manager.selectedDeviceID
+                        ) {
+                            DeviceRow(device: device)
+                        }
                     }
                 }
             }
 
             Section(L("Инструменты")) {
-                NavigationLink(value: "appstore") {
+                NavigationLink(
+                    destination: StoreView(),
+                    tag: "appstore",
+                    selection: $manager.selectedDeviceID
+                ) {
                     Label("App Store", systemImage: "bag")
                 }
-                .tag("appstore")
 
-                NavigationLink(value: "downloads") {
+                NavigationLink(
+                    destination: DownloadsView(),
+                    tag: "downloads",
+                    selection: $manager.selectedDeviceID
+                ) {
                     HStack(spacing: 8) {
                         Label(L("Загрузки"), systemImage: "arrow.down.circle")
 
@@ -36,11 +48,10 @@ struct SidebarView: View {
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Capsule().fill(Color.accentColor.opacity(0.18)))
-                                .foregroundStyle(Color.accentColor)
+                                .compatForeground(Color.accentColor)
                         }
                     }
                 }
-                .tag("downloads")
             }
 
             Section(L("Состояние")) {
@@ -58,18 +69,18 @@ struct SidebarView: View {
                     Spacer()
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
 
                 if manager.devices.isEmpty, let message = manager.statusMessage {
                     Text(message)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
 
                 if let updated = manager.lastUpdated {
                     Text(L("Обновлено: %@", LDate(updated, dateStyle: .none, timeStyle: .medium)))
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundColor(.secondary)
                 }
             }
         }
@@ -86,7 +97,7 @@ private struct DeviceRow: View {
         HStack(spacing: 10) {
             Image(systemName: device.isTablet ? "ipad" : "iphone")
                 .font(.title3)
-                .foregroundStyle(Color.accentColor)
+                .compatForeground(Color.accentColor)
                 .frame(width: 26)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -101,7 +112,7 @@ private struct DeviceRow: View {
                     Label(device.connection.title, systemImage: device.connection.symbol)
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
             }
         }
         .padding(.vertical, 3)
@@ -116,7 +127,7 @@ private struct EmptyDeviceRow: View {
                 .font(.callout)
             Text(L("Подключите iPhone или iPad по USB либо включите синхронизацию по Wi-Fi."))
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .padding(.vertical, 6)
     }

@@ -36,7 +36,8 @@ struct VersionPickerView: View {
     let app: AppStoreApp
 
     @ObservedObject private var downloads = DownloadManager.shared
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
+    private func dismiss() { presentationMode.wrappedValue.dismiss() }
 
     @State private var versions: [AppStoreVersion] = []
     @State private var isLoading = true
@@ -54,7 +55,7 @@ struct VersionPickerView: View {
             footer
         }
         .frame(width: 560, height: 580)
-        .task {
+        .compatibleTask {
             guard !didLoad else { return }
             didLoad = true
             await loadVersions()
@@ -71,7 +72,7 @@ struct VersionPickerView: View {
                     .lineLimit(1)
                 Text(app.bundleID.isEmpty ? "ID \(app.id)" : app.bundleID)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .lineLimit(1)
             }
 
@@ -102,7 +103,7 @@ struct VersionPickerView: View {
             .overlay(
                 Image(systemName: "app.fill")
                     .font(.system(size: 20))
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             )
     }
 
@@ -113,7 +114,7 @@ struct VersionPickerView: View {
                 ProgressView()
                 Text(L("Получаем список версий…"))
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error {
@@ -133,7 +134,7 @@ struct VersionPickerView: View {
         } else if versions.isEmpty {
             Text(L("Для этого приложения нет доступных версий."))
                 .font(.callout)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
@@ -155,7 +156,7 @@ struct VersionPickerView: View {
         HStack(spacing: 10) {
             Text(L("Старые версии могут больше не устанавливаться на iOS."))
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
 
             Spacer(minLength: 0)
 
@@ -169,7 +170,7 @@ struct VersionPickerView: View {
             } label: {
                 Label(L("Скачать последнюю"), systemImage: "arrow.down.app")
             }
-            .buttonStyle(.borderedProminent)
+            .compatButtonStyle(.prominent)
             .disabled(downloads.activeDownload(for: app, versionID: nil) != nil)
         }
         .padding(16)
@@ -217,23 +218,23 @@ private struct VersionRow: View {
                             .controlSize(.mini)
                         Text(L("Загружаем сведения…"))
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 } else if version.failed {
                     Text(L("Не удалось получить сведения"))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 } else {
                     HStack(spacing: 8) {
                         if let date = version.releaseDate {
                             Text(LDate(date))
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundColor(.secondary)
                         }
                         if let minimumOS = version.minimumOS, !minimumOS.isEmpty {
                             Text("iOS \(minimumOS)+")
                                 .font(.caption)
-                                .foregroundStyle(.tertiary)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -247,7 +248,7 @@ private struct VersionRow: View {
                         .controlSize(.small)
                     Text(L("В очереди"))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             } else {
                 Button {
@@ -259,14 +260,14 @@ private struct VersionRow: View {
                 } label: {
                     Label(L("Скачать"), systemImage: "arrow.down")
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
             }
         }
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)

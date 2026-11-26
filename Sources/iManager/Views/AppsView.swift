@@ -99,7 +99,7 @@ struct AppsView: View {
                     ProgressView()
                         .controlSize(.small)
                     Text(L("Чтение списка приложений через installation_proxy…"))
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 24)
             } else if let error = manager.appsError(for: device.id) {
@@ -110,7 +110,7 @@ struct AppsView: View {
                 )
             } else if allApps.isEmpty {
                 Text(L("На устройстве не найдено приложений."))
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .padding(.vertical, 20)
             } else {
                 TextField(L("Поиск по названию или bundle ID"), text: $searchText)
@@ -118,13 +118,13 @@ struct AppsView: View {
 
                 Text(L("Показано: %d из %d", filteredApps.count, allApps.count))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
 
                 LazyVStack(spacing: 0) {
                     ForEach(filteredApps) { app in
                         AppRow(app: app)
                             .contextMenu {
-                                Button(role: .destructive) {
+                                Button {
                                     appToUninstall = app
                                 } label: {
                                     Label(L("Удалить приложение"), systemImage: "trash")
@@ -138,7 +138,7 @@ struct AppsView: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(nsColor: .controlBackgroundColor))
+                        .fill(Color(NSColor.controlBackgroundColor))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -146,36 +146,30 @@ struct AppsView: View {
                 )
             }
         }
-        .task {
+        .compatibleTask {
             if manager.pairingState(for: device.id) == .paired {
                 await manager.loadApps(for: device)
             }
         }
-        .confirmationDialog(
-            L("Удалить приложение?"),
-            isPresented: Binding(
-                get: { appToUninstall != nil },
-                set: { if !$0 { appToUninstall = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            if let app = appToUninstall {
-                Button(L("Удалить %@", app.name), role: .destructive) {
-                    Task {
-                        await manager.uninstallApp(device: device, app: app)
-                        appToUninstall = nil
+        .background(EmptyView().alert(isPresented: Binding(
+            get: { appToUninstall != nil },
+            set: { if !$0 { appToUninstall = nil } }
+        )) {
+            Alert(
+                title: Text(L("Удалить приложение?")),
+                message: Text(appToUninstall.map { L("Приложение %@ будет полностью удалено с устройства вместе со всеми данными.", $0.bundleID) } ?? ""),
+                primaryButton: .destructive(Text(appToUninstall.map { L("Удалить %@", $0.name) } ?? L("Удалить"))) {
+                    if let app = appToUninstall {
+                        Task {
+                            await manager.uninstallApp(device: device, app: app)
+                            appToUninstall = nil
+                        }
                     }
-                }
-                Button(L("Отмена"), role: .cancel) {
-                    appToUninstall = nil
-                }
-            }
-        } message: {
-            if let app = appToUninstall {
-                Text(L("Приложение %@ будет полностью удалено с устройства вместе со всеми данными.", app.bundleID))
-            }
-        }
-        .onChange(of: manager.pairingState(for: device.id)) { state in
+                },
+                secondaryButton: .cancel(Text(L("Отмена"))) { appToUninstall = nil }
+            )
+        })
+        .compatibleOnChange(of: manager.pairingState(for: device.id)) { state in
             if state == .paired {
                 Task { await manager.loadApps(for: device) }
             }
@@ -193,16 +187,15 @@ struct AppsView: View {
             InstallBatchView(device: device, ipas: pendingIPAs)
                 .environmentObject(manager)
         }
-        .alert(
-            L("Не удалось прочитать .ipa"),
-            isPresented: Binding(
-                get: { importError != nil },
-                set: { if !$0 { importError = nil } }
+        .alert(isPresented: Binding(
+            get: { importError != nil },
+            set: { if !$0 { importError = nil } }
+        )) {
+            Alert(
+                title: Text(L("Не удалось прочитать .ipa")),
+                message: Text(importError ?? ""),
+                dismissButton: .cancel(Text("OK")) { importError = nil }
             )
-        ) {
-            Button("OK", role: .cancel) { importError = nil }
-        } message: {
-            Text(importError ?? "")
         }
     }
 
@@ -259,7 +252,7 @@ private struct AppRow: View {
                 .overlay(
                     Text(initials)
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundColor(.white)
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -269,7 +262,7 @@ private struct AppRow: View {
 
                 Text(app.bundleID)
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
@@ -278,7 +271,7 @@ private struct AppRow: View {
 
             Text(app.version.isEmpty ? "—" : "v\(app.version)")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
 
             if !app.isUserApp {
                 Text(app.applicationType)
@@ -286,7 +279,7 @@ private struct AppRow: View {
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
                     .background(Capsule().fill(Color.secondary.opacity(0.12)))
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(.horizontal, 12)
@@ -294,7 +287,12 @@ private struct AppRow: View {
     }
 
     private var iconColor: Color {
-        let palette: [Color] = [.blue, .indigo, .purple, .pink, .orange, .teal, .green, .cyan]
+        var palette: [Color] = [.blue, .purple, .pink, .orange, .green]
+        if #available(macOS 12.0, *) {
+            palette.append(.indigo)
+            palette.append(.teal)
+            palette.append(.cyan)
+        }
         let hash = app.bundleID.unicodeScalars.reduce(0) { partial, scalar in
             (partial &* 31 &+ Int(scalar.value)) & 0x7fff_ffff
         }

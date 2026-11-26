@@ -38,10 +38,10 @@ struct FilesView: View {
             } else if let text = model.transferText {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundColor(.green)
                     Text(text)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
 
@@ -53,7 +53,7 @@ struct FilesView: View {
 
             Text(L("Корень проводника — общий каталог Media на устройстве. Файлы приложений доступны через их контейнеры."))
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundColor(.secondary)
         }
         .onAppear { model.loadInitial() }
     }
@@ -118,7 +118,7 @@ struct FilesView: View {
             } label: {
                 Image(systemName: "arrow.up")
             }
-            .buttonStyle(.borderless)
+            .compatButtonStyle(.borderless)
             .disabled(model.parentPath == nil)
             .help(Text(L("На уровень выше")))
 
@@ -127,20 +127,20 @@ struct FilesView: View {
             } label: {
                 Image(systemName: "iphone")
             }
-            .buttonStyle(.borderless)
+            .compatButtonStyle(.borderless)
             .help(Text(L("Корень Media")))
 
             ForEach(Array(pathComponents.enumerated()), id: \.offset) { index, name in
                 Image(systemName: "chevron.right")
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.tertiary)
+                    .foregroundColor(.secondary)
 
                 Button(name) {
                     model.open(path(upTo: index))
                 }
-                .buttonStyle(.plain)
+                .compatButtonStyle(.plain)
                 .font(.callout)
-                .foregroundStyle(index == pathComponents.count - 1 ? .primary : .secondary)
+                .foregroundColor(index == pathComponents.count - 1 ? .primary : .secondary)
             }
 
             Spacer(minLength: 0)
@@ -149,7 +149,7 @@ struct FilesView: View {
         .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -194,7 +194,7 @@ struct FilesView: View {
                     Label(item.title, systemImage: item.icon)
                         .font(.caption)
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
                 .tint(model.currentPath == item.path ? Color.accentColor : Color.secondary)
                 .disabled(model.isTransferring)
@@ -215,14 +215,14 @@ struct FilesView: View {
                             .controlSize(.small)
                         Text(L("Чтение папки…"))
                             .font(.callout)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     } else {
                         Image(systemName: "folder")
                             .font(.system(size: 26, weight: .light))
-                            .foregroundStyle(.tertiary)
+                            .foregroundColor(.secondary)
                         Text(L("Папка пуста"))
                             .font(.callout)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -252,7 +252,7 @@ struct FilesView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -272,7 +272,7 @@ struct FilesView: View {
                 .padding(14)
                 .background(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(Color(nsColor: .windowBackgroundColor).opacity(0.9))
+                        .fill(Color(NSColor.windowBackgroundColor).opacity(0.9))
                 )
                 .allowsHitTesting(false)
             }
@@ -313,12 +313,12 @@ struct FilesView: View {
                     .controlSize(.small)
                 Text(model.transferText ?? L("Передача файла…"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                 Spacer()
                 if let progress = model.transferProgress {
                     Text("\(Int(progress * 100))%")
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
             if let progress = model.transferProgress {
@@ -346,7 +346,7 @@ struct FilesView: View {
             } label: {
                 Image(systemName: "xmark")
             }
-            .buttonStyle(.borderless)
+            .compatButtonStyle(.borderless)
             .help(Text(L("Скрыть сообщение")))
         }
     }
@@ -461,7 +461,7 @@ private struct RemoteFileRow: View {
         HStack(spacing: 10) {
             Image(systemName: file.icon)
                 .font(.system(size: 15))
-                .foregroundStyle(file.isDirectory ? Color.accentColor : Color.secondary)
+                .foregroundColor(file.isDirectory ? .accentColor : .secondary)
                 .frame(width: 22)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -472,7 +472,7 @@ private struct RemoteFileRow: View {
 
                 Text(detail)
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .lineLimit(1)
             }
 
@@ -483,7 +483,7 @@ private struct RemoteFileRow: View {
                     Button(action: onDownload) {
                         Image(systemName: "arrow.down.circle")
                     }
-                    .buttonStyle(.borderless)
+                    .compatButtonStyle(.borderless)
                     .help(Text(L("Скачать на Mac")))
                 }
 
@@ -508,7 +508,7 @@ private struct RemoteFileRow: View {
             if file.isDirectory {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.tertiary)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(.horizontal, 12)

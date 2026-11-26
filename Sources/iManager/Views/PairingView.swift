@@ -22,7 +22,7 @@ struct PairingSection: View {
                         .controlSize(.small)
                     Text(L("Проверка сопряжения…"))
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 6)
 
@@ -35,7 +35,7 @@ struct PairingSection: View {
                             .font(.callout.weight(.semibold))
                         Text(L("Разблокируйте устройство и нажмите «Доверять» на его экране."))
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding(14)
@@ -55,7 +55,7 @@ struct PairingSection: View {
                     Button(L("Сопрячь устройство")) {
                         Task { await manager.pair(device: device) }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .compatButtonStyle(.prominent)
                 }
 
             case .failed(let message):
@@ -68,7 +68,7 @@ struct PairingSection: View {
                     Button(L("Повторить сопряжение")) {
                         Task { await manager.pair(device: device) }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .compatButtonStyle(.prominent)
                 }
             }
         }

@@ -6,21 +6,12 @@ struct ContentView: View {
     @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
-        NavigationSplitView {
+        NavigationView {
             SidebarView()
-                .navigationSplitViewColumnWidth(min: 230, ideal: 265, max: 320)
-        } detail: {
-            if manager.selectedDeviceID == "appstore" {
-                StoreView()
-            } else if manager.selectedDeviceID == "downloads" {
-                DownloadsView()
-            } else if let device = manager.devices.first(where: { $0.id == manager.selectedDeviceID }) {
-                DeviceDetailView(device: device)
-                    .id(device.id)
-            } else {
-                EmptyStateView()
-            }
+                .frame(minWidth: 230, idealWidth: 265, maxWidth: 320)
+            EmptyStateView()
         }
+        .navigationViewStyle(DoubleColumnNavigationViewStyle())
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button {

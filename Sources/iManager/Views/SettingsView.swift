@@ -17,7 +17,8 @@ final class SettingsStore: ObservableObject {
 
 struct SettingsView: View {
     @ObservedObject private var l10n = LocalizationManager.shared
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
+    private func dismiss() { presentationMode.wrappedValue.dismiss() }
 
     private var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
@@ -36,7 +37,7 @@ struct SettingsView: View {
             footer
         }
         .frame(width: 470, height: 430)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color(NSColor.windowBackgroundColor))
     }
 
     private var header: some View {
@@ -47,7 +48,7 @@ struct SettingsView: View {
                     .frame(width: 46, height: 46)
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(Color.accentColor)
+                    .compatForeground(Color.accentColor)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -55,7 +56,7 @@ struct SettingsView: View {
                     .font(.title3.weight(.semibold))
                 Text(L("Настройки приложения"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -71,7 +72,7 @@ struct SettingsView: View {
                         .font(.callout.weight(.semibold))
                     Text(L("Выберите язык интерфейса. Изменения применяются сразу."))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
 
                     VStack(spacing: 8) {
                         ForEach(AppLanguage.allCases) { language in
@@ -88,20 +89,20 @@ struct SettingsView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "iphone.gen3")
                             .font(.title3)
-                            .foregroundStyle(Color.accentColor)
+                            .compatForeground(Color.accentColor)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("iManager \(version) (\(build))")
                                 .font(.caption.weight(.medium))
                             Text(L("iManager — менеджер iOS-устройств"))
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundColor(.secondary)
                         }
                         Spacer(minLength: 0)
                     }
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(Color(nsColor: .controlBackgroundColor))
+                            .fill(Color(NSColor.controlBackgroundColor))
                     )
                 }
             }
@@ -122,30 +123,30 @@ struct SettingsView: View {
                         .frame(width: 36, height: 36)
                     Text(language == .ru ? "RU" : "EN")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                        .foregroundColor(isSelected ? .accentColor : .secondary)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(language.title)
                         .font(.callout.weight(.medium))
-                        .foregroundStyle(.primary)
+                        .foregroundColor(.primary)
                     Text(language.subtitle)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
 
                 Spacer(minLength: 0)
 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 17))
-                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary.opacity(0.5))
+                    .foregroundColor(isSelected ? .accentColor : Color.secondary.opacity(0.5))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 9)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(isSelected ? Color.accentColor.opacity(0.06) : Color(nsColor: .controlBackgroundColor))
+                    .fill(isSelected ? Color.accentColor.opacity(0.06) : Color(NSColor.controlBackgroundColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -153,7 +154,7 @@ struct SettingsView: View {
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .compatButtonStyle(.plain)
     }
 
     private var footer: some View {
@@ -162,7 +163,7 @@ struct SettingsView: View {
             Button(L("Закрыть")) {
                 dismiss()
             }
-            .buttonStyle(.borderedProminent)
+            .compatButtonStyle(.prominent)
             .keyboardShortcut(.defaultAction)
         }
         .padding(16)

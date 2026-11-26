@@ -35,7 +35,7 @@ struct DownloadsView: View {
             .padding(26)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle(L("Загрузки"))
         .sheet(item: $pendingInstall) { ipa in
             if let device = targetDevice {
@@ -61,8 +61,8 @@ struct DownloadsView: View {
 
                 Text(L("Файлы .ipa сохраняются в %@", downloads.directoryURL.path))
                     .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
+                    .foregroundColor(.secondary)
+                    .compatibleTextSelection()
                     .lineLimit(2)
                     .truncationMode(.middle)
             }
@@ -123,14 +123,14 @@ struct DownloadsView: View {
                     if !item.version.isEmpty {
                         Text("v\(item.version)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer(minLength: 0)
 
                     Text(percentText(for: item))
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
 
                 if let progress = item.progress {
@@ -144,15 +144,15 @@ struct DownloadsView: View {
                 HStack(spacing: 10) {
                     Text(bytesText(for: item))
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
 
                     if item.speed > 0, item.phase == .downloading {
                         Text("•")
                             .font(.caption)
-                            .foregroundStyle(.tertiary)
+                            .foregroundColor(.secondary)
                         Text(L("%@/с", ByteFormatter.string(Int64(item.speed))))
                             .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer(minLength: 0)
@@ -160,7 +160,7 @@ struct DownloadsView: View {
                     if let message = item.message {
                         Text(message)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                             .lineLimit(1)
                     }
                 }
@@ -169,7 +169,7 @@ struct DownloadsView: View {
             Button(L("Отменить")) {
                 downloads.cancel(item)
             }
-            .buttonStyle(.bordered)
+            .compatButtonStyle(.bordered)
             .controlSize(.small)
             .disabled(item.phase == .queued)
         }
@@ -208,13 +208,13 @@ struct DownloadsView: View {
                     if !item.version.isEmpty {
                         Text("v\(item.version)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 }
 
                 Text(item.message ?? (item.phase == .cancelled ? L("Загрузка отменена.") : L("Неизвестная ошибка.")))
                     .font(.caption)
-                    .foregroundStyle(item.phase == .cancelled ? Color.secondary : Color.red)
+                    .foregroundColor(item.phase == .cancelled ? .secondary : .red)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -224,7 +224,7 @@ struct DownloadsView: View {
                 Button(L("Повторить")) {
                     downloads.retry(item)
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
 
                 Button {
@@ -232,7 +232,7 @@ struct DownloadsView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
-                .buttonStyle(.borderless)
+                .compatButtonStyle(.borderless)
                 .help(Text(L("Убрать из списка")))
             }
         }
@@ -256,14 +256,14 @@ struct DownloadsView: View {
                 if targetDevice == nil {
                     Label(L("Устройство не подключено"), systemImage: "iphone.slash")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
 
             if downloads.library.isEmpty {
                 Text(L("После завершения загрузки файл появится в этой папке."))
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .padding(.vertical, 6)
             } else {
                 VStack(spacing: 0) {
@@ -288,7 +288,7 @@ struct DownloadsView: View {
                 .overlay(
                     Image(systemName: "doc.zipper")
                         .font(.system(size: 19, weight: .medium))
-                        .foregroundStyle(Color.accentColor)
+                        .compatForeground(Color.accentColor)
                 )
 
             VStack(alignment: .leading, spacing: 3) {
@@ -299,7 +299,7 @@ struct DownloadsView: View {
 
                 Text("\(ByteFormatter.string(item.size)) • \(LDate(item.modifiedAt, dateStyle: .medium, timeStyle: .short))")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -309,7 +309,7 @@ struct DownloadsView: View {
             } label: {
                 Label(L("Установить"), systemImage: "arrow.down.app")
             }
-            .buttonStyle(.bordered)
+            .compatButtonStyle(.bordered)
             .controlSize(.small)
             .disabled(targetDevice == nil)
             .help(targetDevice == nil ? L("Подключите iPhone или iPad по USB") : L("Установить на устройство"))
@@ -321,7 +321,7 @@ struct DownloadsView: View {
                     Label(L("Показать в Finder"), systemImage: "folder")
                 }
 
-                Button(role: .destructive) {
+                Button {
                     downloads.deleteLibraryItem(item)
                 } label: {
                     Label(L("Удалить файл"), systemImage: "trash")
@@ -343,14 +343,14 @@ struct DownloadsView: View {
         VStack(spacing: 14) {
             Image(systemName: "arrow.down.circle")
                 .font(.system(size: 46, weight: .light))
-                .foregroundStyle(Color.accentColor.opacity(0.8))
+                .compatForeground(Color.accentColor.opacity(0.8))
 
             Text(L("Пока нет загрузок"))
                 .font(.title3.weight(.semibold))
 
             Text(L("Откройте App Store, найдите приложение или выберите его из своих покупок и нажмите «Скачать». Файл .ipa сохранится в папку iManager."))
                 .font(.callout)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 430)
 
@@ -359,7 +359,7 @@ struct DownloadsView: View {
             } label: {
                 Label(L("Открыть App Store"), systemImage: "bag")
             }
-            .buttonStyle(.borderedProminent)
+            .compatButtonStyle(.prominent)
             .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
@@ -370,7 +370,7 @@ struct DownloadsView: View {
 
     private var cardBackground: some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color(nsColor: .controlBackgroundColor))
+            .fill(Color(NSColor.controlBackgroundColor))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(Color.primary.opacity(0.06))
@@ -439,7 +439,7 @@ private struct DownloadIcon: View {
             .overlay(
                 Image(systemName: symbol)
                     .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(tint)
+                    .compatForeground(tint)
             )
     }
 

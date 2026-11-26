@@ -3,7 +3,10 @@
 Нативный менеджер iOS-устройств для macOS на SwiftUI.  
 A native SwiftUI iOS device manager for macOS.
 
-![macOS](https://img.shields.io/badge/macOS-13.0%2B-black?logo=apple)
+iManager — графическая оболочка для [Sorvigolova/ipatool](https://github.com/Sorvigolova/ipatool).  
+iManager is a GUI frontend for [Sorvigolova/ipatool](https://github.com/Sorvigolova/ipatool).
+
+![macOS](https://img.shields.io/badge/macOS-12.0%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-5.8-orange?logo=swift)
 ![UI](https://img.shields.io/badge/UI-SwiftUI-blue)
 ![Version](https://img.shields.io/badge/version-0.1.0-green)
@@ -24,7 +27,7 @@ A native SwiftUI iOS device manager for macOS.
 
 ### Требования
 
-- macOS **13.0 Ventura** или новее.
+- macOS **12.0 Monterey** или новее.
 - Command Line Tools for Xcode (`xcode-select --install`).
 - Для работы с устройством: iPhone/iPad, кабель USB или синхронизация по Wi-Fi, доверие компьютеру на устройстве.
 
@@ -67,7 +70,7 @@ build.sh      Сборка .app без Xcode project
 
 ### App Store / ipatool
 
-Для загрузки `.ipa` из App Store используется `ipatool`, поставляемый в `Resources/bin/ipatool`.  
+iManager — графическая оболочка для [ipatool (Sorvigolova fork)](https://github.com/Sorvigolova/ipatool). Бинарник поставляется в `Resources/bin/ipatool`.  
 Перед входом и загрузкой iManager передаёт ipatool окружение устройства; при выходе из Apple ID локальная сессия ipatool очищается, чтобы следующий вход мог запросить 2FA.
 
 > Используйте функцию загрузки только для приложений и аккаунтов, к которым у вас есть законный доступ. Соблюдайте условия Apple и применимое законодательство.
@@ -99,7 +102,7 @@ build.sh      Сборка .app без Xcode project
 
 ### Requirements
 
-- macOS **13.0 Ventura** or newer.
+- macOS **12.0 Monterey** or newer.
 - Xcode Command Line Tools (`xcode-select --install`).
 - For device features: iPhone/iPad, USB cable or Wi-Fi sync, and Trust This Computer on the device.
 
@@ -142,7 +145,7 @@ build.sh      Builds the .app without an Xcode project
 
 ### App Store / ipatool
 
-App Store `.ipa` downloads use the bundled `ipatool` binary in `Resources/bin/ipatool`.  
+iManager is a GUI frontend for [ipatool (Sorvigolova fork)](https://github.com/Sorvigolova/ipatool). The bundled binary is located at `Resources/bin/ipatool`.  
 iManager provides the required device environment for ipatool and clears the local ipatool session on Apple ID sign-out so the next sign-in can request 2FA.
 
 > Use download features only for apps/accounts you are legally authorized to access. Follow Apple terms and applicable laws.

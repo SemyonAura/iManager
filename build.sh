@@ -28,7 +28,7 @@ build_arch() {
     swiftc \
         -O \
         -parse-as-library \
-        -target "${arch}-apple-macos13.0" \
+        -target "${arch}-apple-macos12.0" \
         -sdk "$SDK_PATH" \
         -framework SwiftUI \
         -framework AppKit \
@@ -82,7 +82,7 @@ if [ -f Resources/ipatool-shim.c ]; then
     clang -dynamiclib -O2 \
         -arch x86_64 -arch arm64 \
         -isysroot "$SDK_PATH" \
-        -mmacosx-version-min=13.0 \
+        -mmacosx-version-min=12.0 \
         -framework CoreFoundation \
         -framework IOKit \
         Resources/ipatool-shim.c \

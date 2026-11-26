@@ -39,7 +39,10 @@ struct StoreView: View {
     @State private var didRestoreSession = false
     @State private var showLogoutConfirmation = false
 
+    #if compiler(>=5.5)
+    @available(macOS 12.0, *)
     @FocusState private var codeFocused: Bool
+    #endif
 
     private var isAuthenticated: Bool { store.isAuthenticated }
 
@@ -66,7 +69,7 @@ struct StoreView: View {
             .padding(26)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle("App Store")
         .onAppear {
             if appleID.isEmpty {
@@ -76,24 +79,23 @@ struct StoreView: View {
             didRestoreSession = true
             Task { await store.restoreSession() }
         }
-        .onChange(of: store.requires2FA) { required in
+        .compatibleOnChange(of: store.requires2FA) { required in
             if required {
-                codeFocused = true
+                if #available(macOS 12.0, *) {
+                    codeFocused = true
+                }
             }
         }
         .sheet(item: $versionApp) { app in
             VersionPickerView(app: app)
         }
-        .confirmationDialog(
-            L("Выйти из Apple ID?"),
-            isPresented: $showLogoutConfirmation
-        ) {
-            Button(L("Выйти и остановить загрузки"), role: .destructive) {
-                performLogout()
-            }
-            Button(L("Отмена"), role: .cancel) {}
-        } message: {
-            Text(L("Активные загрузки будут остановлены, сохранённая сессия удалена. При следующем входе Apple запросит код 2FA."))
+        .alert(isPresented: $showLogoutConfirmation) {
+            Alert(
+                title: Text(L("Выйти из Apple ID?")),
+                message: Text(L("Активные загрузки будут остановлены, сохранённая сессия удалена. При следующем входе Apple запросит код 2FA.")),
+                primaryButton: .destructive(Text(L("Выйти и остановить загрузки"))) { performLogout() },
+                secondaryButton: .cancel(Text(L("Отмена")))
+            )
         }
     }
 
@@ -107,7 +109,7 @@ struct StoreView: View {
 
                 Text(L("Поиск приложений, история покупок и скачивание файлов .ipa"))
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -135,7 +137,7 @@ struct StoreView: View {
             HStack(spacing: 12) {
                 Image(systemName: "person.crop.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.accentColor)
+                    .compatForeground(Color.accentColor)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(store.userAppleID ?? "Apple ID")
@@ -143,7 +145,7 @@ struct StoreView: View {
 
                     Text(L("Вход выполнен. Доступны покупки и загрузка из App Store."))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
 
                 Spacer(minLength: 0)
@@ -192,7 +194,7 @@ struct StoreView: View {
             HStack(spacing: 10) {
                 Image(systemName: "lock.shield")
                     .font(.title3)
-                    .foregroundStyle(.orange)
+                    .foregroundColor(.orange)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(L("Вход в Apple ID"))
@@ -200,7 +202,7 @@ struct StoreView: View {
 
                     Text(L("Нужен для истории покупок и скачивания .ipa с серверов Apple."))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
 
                 Spacer(minLength: 0)
@@ -210,7 +212,7 @@ struct StoreView: View {
                         .controlSize(.small)
                     Text(L("Проверка сохранённой сессии…"))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
 
@@ -224,10 +226,18 @@ struct StoreView: View {
                     .frame(maxWidth: 200)
 
                 if store.requires2FA {
-                    TextField(L("Код 2FA"), text: $code)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 110)
-                        .focused($codeFocused)
+                    Group {
+                        if #available(macOS 12.0, *) {
+                            TextField(L("Код 2FA"), text: $code)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 110)
+                                .focused($codeFocused)
+                        } else {
+                            TextField(L("Код 2FA"), text: $code)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 110)
+                        }
+                    }
                 }
 
                 Button {
@@ -243,7 +253,7 @@ struct StoreView: View {
                         Text(store.requires2FA ? L("Подтвердить код") : L("Войти"))
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .compatButtonStyle(.prominent)
                 .disabled(
                     appleID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         || password.isEmpty
@@ -258,32 +268,32 @@ struct StoreView: View {
                         .controlSize(.small)
                     Text(status)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
 
             if let error = store.loginError {
                 Label(error, systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundColor(.red)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             if let error = store.logoutError {
                 Label(error, systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundColor(.red)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             if store.requires2FA {
                 Text(L("Введите 6-значный код, который Apple отправил на доверенные устройства. Код действует несколько минут."))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             } else {
                 Text(L("Первый вход может занять до минуты: Apple проверяет устройство и аккаунт."))
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(16)
@@ -317,7 +327,7 @@ struct StoreView: View {
             HStack(spacing: 10) {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                     TextField(L("Название приложения…"), text: $searchText)
                         .textFieldStyle(.plain)
                         .onSubmit {
@@ -327,7 +337,7 @@ struct StoreView: View {
                 .padding(8)
                 .background(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color(nsColor: .controlBackgroundColor))
+                        .fill(Color(NSColor.controlBackgroundColor))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -337,7 +347,7 @@ struct StoreView: View {
                 Button(L("Найти")) {
                     Task { await store.search(query: searchText) }
                 }
-                .buttonStyle(.borderedProminent)
+                .compatButtonStyle(.prominent)
                 .disabled(searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
@@ -389,7 +399,7 @@ struct StoreView: View {
                                 .controlSize(.small)
                             Text(purchasesProgressText)
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundColor(.secondary)
                         }
 
                         if store.purchasesTotal > 0 {
@@ -419,14 +429,14 @@ struct StoreView: View {
         HStack(spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                 TextField(L("Фильтр по названию или bundle ID…"), text: $purchasesFilter)
                     .textFieldStyle(.plain)
             }
             .padding(8)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color(nsColor: .controlBackgroundColor))
+                    .fill(Color(NSColor.controlBackgroundColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -437,7 +447,7 @@ struct StoreView: View {
             if !store.purchasedApps.isEmpty {
                 Text(purchasesCountText)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             if !store.purchasedApps.isEmpty {
@@ -459,7 +469,7 @@ struct StoreView: View {
                     .controlSize(.small)
                 Text(L("Догружаем иконки…"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -501,36 +511,36 @@ struct StoreView: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Capsule().fill(Color.red.opacity(0.14)))
-                            .foregroundStyle(.red)
+                            .foregroundColor(.red)
                     }
                 }
 
                 Text(app.sellerName.isEmpty ? app.bundleID : app.sellerName)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .lineLimit(1)
 
                 HStack(spacing: 8) {
                     if !app.bundleID.isEmpty {
                         Text(app.bundleID)
                             .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                            .foregroundColor(.secondary)
                             .lineLimit(1)
                     }
 
                     if !app.version.isEmpty {
                         Text("v\(app.version)")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
 
                     if showPurchaseDate, let date = app.purchaseDate {
                         Text("•")
                             .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                            .foregroundColor(.secondary)
                         Text(L("Куплено %@", LDate(date)))
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
@@ -567,7 +577,7 @@ struct StoreView: View {
             .overlay(
                 Image(systemName: "app.fill")
                     .font(.system(size: 18))
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             )
     }
 
@@ -577,11 +587,11 @@ struct StoreView: View {
             if price <= 0 {
                 Text(L("Бесплатно"))
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(.green)
+                    .foregroundColor(.green)
             } else {
                 Text(formattedPrice(price, currency: app.currency))
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
         }
     }
@@ -594,7 +604,7 @@ struct StoreView: View {
                     .controlSize(.small)
                 Text(active.phase == .queued ? L("В очереди") : L("Скачивается…"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             .frame(minWidth: 116, alignment: .trailing)
         } else if let failed = downloads.download(for: app),
@@ -605,7 +615,7 @@ struct StoreView: View {
                 } label: {
                     Label(L("Повторить"), systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
 
                 if allowVersions {
@@ -619,7 +629,7 @@ struct StoreView: View {
                 } label: {
                     Label(L("Скачать"), systemImage: "arrow.down.app")
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
                 .disabled(!isAuthenticated)
                 .help(isAuthenticated ? L("Скачать .ipa в папку iManager") : L("Сначала войдите в Apple ID"))
@@ -637,7 +647,7 @@ struct StoreView: View {
         } label: {
             Image(systemName: "clock.arrow.circlepath")
         }
-        .buttonStyle(.bordered)
+        .compatButtonStyle(.bordered)
         .controlSize(.small)
         .help(Text(L("Выбрать версию для скачивания")))
     }
@@ -706,7 +716,7 @@ struct StoreView: View {
 
     private var cardBackground: some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color(nsColor: .controlBackgroundColor))
+            .fill(Color(NSColor.controlBackgroundColor))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(Color.primary.opacity(0.06))
@@ -718,7 +728,7 @@ struct StoreView: View {
             ProgressView()
                 .controlSize(.small)
             Text(text)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
         }
         .padding(.vertical, 18)
     }
@@ -726,7 +736,7 @@ struct StoreView: View {
     private func hint(_ text: String) -> some View {
         Text(text)
             .font(.callout)
-            .foregroundStyle(.secondary)
+            .foregroundColor(.secondary)
             .padding(.vertical, 18)
     }
 

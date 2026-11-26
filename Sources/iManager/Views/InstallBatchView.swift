@@ -6,7 +6,11 @@ struct InstallBatchView: View {
     let ipas: [IPAInfo]
 
     @EnvironmentObject private var manager: DeviceManager
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
+
+    private func dismiss() {
+        presentationMode.wrappedValue.dismiss()
+    }
 
     private var isAnyInstalling: Bool {
         manager.isInstalling(on: device.id)
@@ -40,7 +44,7 @@ struct InstallBatchView: View {
                 }
                 .padding(.vertical, 8)
             }
-            .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
+            .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
 
             Divider()
 
@@ -59,7 +63,7 @@ struct InstallBatchView: View {
                     .frame(width: 48, height: 48)
                 Image(systemName: "square.stack.3d.down.right.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.accentColor)
+                    .compatForeground(Color.accentColor)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -67,7 +71,7 @@ struct InstallBatchView: View {
                     .font(.headline)
                 Text(L("Выбрано: %d файлов .ipa", ipas.count))
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
             
             Spacer()
@@ -84,7 +88,7 @@ struct InstallBatchView: View {
                     .frame(width: 36, height: 36)
                 Image(systemName: "arrow.down.app")
                     .font(.subheadline)
-                    .foregroundStyle(Color.accentColor)
+                    .compatForeground(Color.accentColor)
             }
 
             VStack(alignment: .leading, spacing: 1) {
@@ -93,7 +97,7 @@ struct InstallBatchView: View {
                     .lineLimit(1)
                 Text("\(ipa.bundleID) • \(ByteFormatter.string(ipa.fileSize))")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer()
@@ -110,12 +114,12 @@ struct InstallBatchView: View {
         case .idle:
             if let issue = ipa.blockingIssue {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundColor(.orange)
                     .help(issue)
             } else {
                 Text(L("В очереди"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
         case .installing(let progress):
@@ -123,23 +127,23 @@ struct InstallBatchView: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(progress.localizedStatus)
                         .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                     ProgressView(value: Double(progress.percent) / 100.0)
                         .progressViewStyle(.linear)
                         .frame(width: 80)
                 }
                 Text("\(progress.percent)%")
                     .font(.caption2.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
         case .success:
             Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
+                .foregroundColor(.green)
 
         case .failed(let message):
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundColor(.red)
                 .help(message)
         }
     }
@@ -151,7 +155,7 @@ struct InstallBatchView: View {
                 Button(L("Готово")) {
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                .compatButtonStyle(.prominent)
                 .keyboardShortcut(.defaultAction)
             } else {
                 Button(L("Отмена")) {
@@ -167,14 +171,14 @@ struct InstallBatchView: View {
                         .padding(.trailing, 4)
                     Text(L("Установка в очереди…"))
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 } else {
                     Button {
                         Task { await manager.installIPAs(device: device, ipas: ipas) }
                     } label: {
                         Text(L("Установить все"))
                     }
-                    .buttonStyle(.borderedProminent)
+                    .compatButtonStyle(.prominent)
                     .keyboardShortcut(.defaultAction)
                 }
             }

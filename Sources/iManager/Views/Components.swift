@@ -21,7 +21,7 @@ struct DeviceHeader: View {
 
                 Image(systemName: device.isTablet ? "ipad" : "iphone")
                     .font(.system(size: 46, weight: .light))
-                    .foregroundStyle(Color.accentColor)
+                    .compatForeground(Color.accentColor)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -35,7 +35,7 @@ struct DeviceHeader: View {
 
                 Text(device.modelName)
                     .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
 
                 HStack(spacing: 8) {
                     StatusBadge(
@@ -96,7 +96,7 @@ struct StatusBadge: View {
     var body: some View {
         Label(text, systemImage: systemImage)
             .font(.caption.weight(.medium))
-            .foregroundStyle(tint)
+            .compatForeground(tint)
             .padding(.horizontal, 9)
             .padding(.vertical, 4)
             .background(Capsule().fill(tint.opacity(0.12)))
@@ -114,7 +114,7 @@ struct SectionTitle: View {
             if let subtitle {
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
         }
     }
@@ -130,18 +130,18 @@ struct InfoTile: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.accentColor)
+                .compatForeground(Color.accentColor)
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                 Text(value)
                     .font(monospaced ? .system(.callout, design: .monospaced) : .callout)
                     .lineLimit(2)
                     .truncationMode(.middle)
-                    .textSelection(.enabled)
+                    .compatibleTextSelection()
             }
 
             Spacer(minLength: 0)
@@ -149,7 +149,7 @@ struct InfoTile: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+                .fill(Color(NSColor.controlBackgroundColor))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -167,14 +167,14 @@ struct NoticeCard: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(.orange)
+                .foregroundColor(.orange)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.callout.weight(.semibold))
                 Text(text)
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(14)

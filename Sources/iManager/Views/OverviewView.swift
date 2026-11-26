@@ -95,7 +95,7 @@ struct OverviewView: View {
                         Label(L("Обновить данные"), systemImage: "arrow.clockwise")
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .compatButtonStyle(.prominent)
                 .controlSize(.small)
                 .disabled(manager.isRefreshing)
 
@@ -104,7 +104,7 @@ struct OverviewView: View {
                 } label: {
                     Label(L("Скопировать сводку"), systemImage: "doc.on.doc")
                 }
-                .buttonStyle(.bordered)
+                .compatButtonStyle(.bordered)
                 .controlSize(.small)
             }
 

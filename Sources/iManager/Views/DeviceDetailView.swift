@@ -61,7 +61,7 @@ struct DeviceDetailView: View {
             }
             .padding(26)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle(device.name)
         .navigationSubtitle(device.modelName)
         .toolbar {

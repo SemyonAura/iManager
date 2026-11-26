@@ -6,7 +6,8 @@ struct InstallIPAView: View {
     let ipa: IPAInfo
 
     @EnvironmentObject private var manager: DeviceManager
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
+    private func dismiss() { presentationMode.wrappedValue.dismiss() }
 
     private var state: AppInstallState {
         manager.installState(for: ipa.path)
@@ -39,7 +40,7 @@ struct InstallIPAView: View {
                     systemImage: "lock.open"
                 )
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -70,7 +71,7 @@ struct InstallIPAView: View {
                 .overlay(
                     Image(systemName: "arrow.down.app.fill")
                         .font(.system(size: 26, weight: .medium))
-                        .foregroundStyle(Color.accentColor)
+                        .compatForeground(Color.accentColor)
                 )
 
             VStack(alignment: .leading, spacing: 3) {
@@ -80,14 +81,14 @@ struct InstallIPAView: View {
 
                 Text(ipa.bundleID)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
+                    .foregroundColor(.secondary)
+                    .compatibleTextSelection()
                     .lineLimit(1)
                     .truncationMode(.middle)
 
                 Text(L("Версия %@", versionText))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
             }
 
             Spacer()
@@ -95,77 +96,50 @@ struct InstallIPAView: View {
     }
 
     private var details: some View {
-        Grid(alignment: .leading, horizontalSpacing: 18, verticalSpacing: 8) {
-            GridRow {
-                Text(L("Файл"))
-                    .foregroundStyle(.secondary)
-                Text(ipa.fileName)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-
-            GridRow {
-                Text(L("Размер"))
-                    .foregroundStyle(.secondary)
-                Text(ByteFormatter.string(ipa.fileSize))
-            }
-
-            GridRow {
-                Text(L("Подпись"))
-                    .foregroundStyle(.secondary)
-                Text(ipa.signature.title)
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            detailRow(L("Файл"), value: ipa.fileName)
+            detailRow(L("Размер"), value: ByteFormatter.string(ipa.fileSize))
+            detailRow(L("Подпись"), value: ipa.signature.title)
 
             if let profile = ipa.profileName {
-                GridRow {
-                    Text(L("Профиль"))
-                        .foregroundStyle(.secondary)
-                    Text(profile)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
+                detailRow(L("Профиль"), value: profile)
             }
-
             if let team = ipa.profileTeam {
-                GridRow {
-                    Text(L("Команда"))
-                        .foregroundStyle(.secondary)
-                    Text(team)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
+                detailRow(L("Команда"), value: team)
             }
-
             if let expiration = ipa.profileExpiration {
-                GridRow {
-                    Text(L("Действует до"))
-                        .foregroundStyle(.secondary)
-                    Text(LDate(expiration))
-                        .foregroundStyle(ipa.isProfileExpired ? .red : .primary)
-                }
+                detailRow(L("Действует до"), value: LDate(expiration), valueColor: ipa.isProfileExpired ? .red : .primary)
             }
-
             if let includes = ipa.profileIncludesDevice {
-                GridRow {
+                HStack(alignment: .top, spacing: 18) {
                     Text(L("Устройство в профиле"))
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
+                        .frame(width: 150, alignment: .leading)
                     Label(
                         includes ? L("Да") : L("Нет"),
                         systemImage: includes ? "checkmark.circle.fill" : "xmark.circle.fill"
                     )
-                    .foregroundStyle(includes ? .green : .red)
+                    .foregroundColor(includes ? .green : .red)
                 }
             }
-
             if !ipa.minimumOSVersion.isEmpty {
-                GridRow {
-                    Text(L("Минимальная iOS"))
-                        .foregroundStyle(.secondary)
-                    Text(ipa.minimumOSVersion)
-                }
+                detailRow(L("Минимальная iOS"), value: ipa.minimumOSVersion)
             }
         }
         .font(.callout)
+    }
+
+    private func detailRow(_ title: String, value: String, valueColor: Color = .primary) -> some View {
+        HStack(alignment: .top, spacing: 18) {
+            Text(title)
+                .foregroundColor(.secondary)
+                .frame(width: 150, alignment: .leading)
+            Text(value)
+                .foregroundColor(valueColor)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .compatibleTextSelection()
+        }
     }
 
     @ViewBuilder
@@ -180,18 +154,18 @@ struct InstallIPAView: View {
                 HStack {
                     Text(progress.localizedStatus)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text("\(progress.percent)%")
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
 
         case .success:
             Label(L("Приложение установлено на устройство"), systemImage: "checkmark.circle.fill")
                 .font(.callout.weight(.medium))
-                .foregroundStyle(.green)
+                .foregroundColor(.green)
 
         case .failed(let message):
             NoticeCard(
@@ -210,7 +184,7 @@ struct InstallIPAView: View {
                 Button(L("Готово")) {
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                .compatButtonStyle(.prominent)
                 .keyboardShortcut(.defaultAction)
             } else {
                 Button(ipa.canInstall ? L("Отмена") : L("Закрыть")) {
@@ -225,14 +199,14 @@ struct InstallIPAView: View {
                         .controlSize(.small)
                     Text(L("Установка…"))
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 } else {
                     Button {
                         Task { await manager.installApp(device: device, ipa: ipa) }
                     } label: {
                         Label(L("Установить"), systemImage: "arrow.down.app")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .compatButtonStyle(.prominent)
                     .disabled(!ipa.canInstall)
                     .keyboardShortcut(.defaultAction)
                 }
